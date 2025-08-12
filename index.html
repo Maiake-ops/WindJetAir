@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome - Sign In or Create Account</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #ff9a56 0%, #ff6b35 100%);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .auth-container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 40px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 40px rgba(255, 107, 53, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .auth-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 50px rgba(255, 107, 53, 0.4);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
+      font-weight: 300;
+      letter-spacing: -0.5px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0.9;
+    }
+
+    .mode-selector {
+      display: flex;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255, 154, 86, 0.3);
+    }
+
+    .mode-option {
+      flex: 1;
+      padding: 12px 20px;
+      text-align: center;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      border: none;
+      background: transparent;
+      color: #fff;
+      opacity: 0.6;
+    }
+
+    .mode-option.active {
+      background: rgba(255, 154, 86, 0.3);
+      opacity: 1;
+      transform: scale(1.02);
+      box-shadow: 0 4px 15px rgba(255, 154, 86, 0.2);
+    }
+
+    input {
+      width: 100%;
+      padding: 15px 20px;
+      border: 1px solid rgba(255, 154, 86, 0.3);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #ffb347;
+      box-shadow: 0 0 20px rgba(255, 179, 71, 0.4);
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #ffb347, #ff9a56);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 10px;
+      box-shadow: 0 8px 20px rgba(255, 154, 86, 0.3);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(255, 154, 86, 0.5);
+      background: linear-gradient(135deg, #ff9a56, #ff8c42);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-message, .success-message {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 14px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+
+    .error-message {
+      background: rgba(255, 82, 82, 0.25);
+      border: 1px solid rgba(255, 82, 82, 0.4);
+      color: #ffb3b3;
+    }
+
+    .success-message {
+      background: rgba(255, 179, 71, 0.25);
+      border: 1px solid rgba(255, 179, 71, 0.4);
+      color: #ffb347;
+    }
+
+    .error-message.show, .success-message.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .password-toggle {
+      position: relative;
+    }
+
+    .toggle-visibility {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 5px;
+      transition: color 0.3s ease;
+    }
+
+    .toggle-visibility:hover {
+      color: rgba(255, 179, 71, 0.9);
+    }
+
+    /* Floating particles effect */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 20% 80%, rgba(255, 179, 71, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 154, 86, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(255, 107, 53, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @media (max-width: 480px) {
+      .auth-container {
+        padding: 30px 20px;
+        margin: 10px;
+      }
+      
+      h2 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <h2 id="formTitle">Welcome Back</h2>
+    
+    <div class="mode-selector">
+      <button type="button" class="mode-option active" data-mode="login">Sign In</button>
+      <button type="button" class="mode-option" data-mode="signup">Sign Up</button>
+    </div>
+
+    <form id="authForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter your username" required autocomplete="username">
+      </div>
+
+      <div class="form-group password-toggle">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" required autocomplete="current-password">
+        <button type="button" class="toggle-visibility" onclick="togglePasswordVisibility()">👁️</button>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">Sign In</button>
+      
+      <div id="message" class="error-message"></div>
+    </form>
+  </div>
+
+  <script>
+    let currentMode = 'login';
+    let isSubmitting = false;
+
+    // Mode switching functionality
+    document.querySelectorAll('.mode-option').forEach(option => {
+      option.addEventListener('click', (e) => {
+        const mode = e.target.dataset.mode;
+        switchMode(mode);
+      });
+    });
+
+    function switchMode(mode) {
+      currentMode = mode;
+      
+      // Update active state
+      document.querySelectorAll('.mode-option').forEach(opt => {
+        opt.classList.toggle('active', opt.dataset.mode === mode);
+      });
+
+      // Update form title and button
+      const title = document.getElementById('formTitle');
+      const submitBtn = document.getElementById('submitBtn');
+      
+      if (mode === 'login') {
+        title.textContent = 'Welcome Back';
+        submitBtn.textContent = 'Sign In';
+        document.getElementById('password').setAttribute('autocomplete', 'current-password');
+      } else {
+        title.textContent = 'Create Account';
+        submitBtn.textContent = 'Sign Up';
+        document.getElementById('password').setAttribute('autocomplete', 'new-password');
+      }
+
+      // Clear any existing messages
+      hideMessage();
+    }
+
+    // Password visibility toggle
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('password');
+      const toggleBtn = document.querySelector('.toggle-visibility');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.textContent = '🙈';
+      } else {
+        passwordInput.type = 'password';
+        toggleBtn.textContent = '👁️';
+      }
+    }
+
+    // Message display functions
+    function showMessage(text, isError = true) {
+      const messageEl = document.getElementById('message');
+      messageEl.textContent = text;
+      messageEl.className = isError ? 'error-message show' : 'success-message show';
+    }
+
+    function hideMessage() {
+      const messageEl = document.getElementById('message');
+      messageEl.classList.remove('show');
+    }
+
+    // Form submission
+    document.getElementById('authForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (isSubmitting) return;
+      isSubmitting = true;
+
+      const submitBtn = document.getElementById('submitBtn');
+      const originalText = submitBtn.textContent;
+      
+      // Show loading state
+      submitBtn.innerHTML = '<span class="loading"></span>Processing...';
+      submitBtn.disabled = true;
+      hideMessage();
+
+      try {
+        const data = {
+          username: document.getElementById('username').value.trim(),
+          password: document.getElementById('password').value.trim()
+        };
+
+        // Basic validation
+        if (!data.username || !data.password) {
+          throw new Error('Please fill in all fields');
+        }
+
+        if (data.username.length < 3) {
+          throw new Error('Username must be at least 3 characters');
+        }
+
+        if (data.password.length < 6) {
+          throw new Error('Password must be at least 6 characters');
+        }
+
+        // Simulate API call (replace with actual endpoint)
+        const response = await fetch(`/${currentMode}`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showMessage(result.message || `${currentMode === 'login' ? 'Sign in' : 'Account creation'} successful!`, false);
+          
+          if (currentMode === 'login') {
+            setTimeout(() => {
+              window.location.href = result.redirectUrl || '/dashboard';
+            }, 1500);
+          } else {
+            setTimeout(() => switchMode('login'), 1500);
+          }
+        } else {
+          throw new Error(result.message || `${currentMode === 'login' ? 'Sign in' : 'Sign up'} failed`);
+        }
+
+      } catch (error) {
+        showMessage(error.message);
+      } finally {
+        isSubmitting = false;
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Input validation feedback
+    document.getElementById('username').addEventListener('blur', function() {
+      if (this.value.length > 0 && this.value.length < 3) {
+        showMessage('Username must be at least 3 characters');
+      } else {
+        hideMessage();
+      }
+    });
+
+    document.getElementById('password').addEventListener('blur', function() {
+      if (this.value.length > 0 && this.value.length < 6) {
+        showMessage('Password must be at least 6 characters');
+      } else {
+        hideMessage();
+      }
+    });
+
+    // Clear messages when user starts typing
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', hideMessage);
+    });
+  </script>
+</body>
+</html>
